@@ -39,8 +39,8 @@ class BranchProductController extends Controller
     {
         $validated = $request->validate([
             'product_id' => 'required|integer|exists:products,id',
-            // BranchProduct only has price (no stock)
-            'price' => 'nullable|numeric',
+            // BranchProduct only has branch_price (no stock)
+            'branch_price' => 'nullable|numeric',
         ]);
 
         $attributes = [
@@ -49,16 +49,16 @@ class BranchProductController extends Controller
         ];
 
         $values = [
-            'price' => $validated['price'] ?? null,
+            'branch_price' => $validated['branch_price'] ?? null,
         ];
 
         $branchProduct = BranchProduct::firstOrCreate($attributes, $values);
 
-        // if it already existed but a price was provided and differs, update it
-        if (! $branchProduct->wasRecentlyCreated && array_key_exists('price', $validated)) {
-            if ($branchProduct->price !== $validated['price']) {
-                $branchProduct->update(['price' => $validated['price']]);
-                $message = 'Branch product existed; price updated.';
+        // if it already existed but a branch_price was provided and differs, update it
+        if (! $branchProduct->wasRecentlyCreated && array_key_exists('branch_price', $validated)) {
+            if ($branchProduct->branch_price !== $validated['branch_price']) {
+                $branchProduct->update(['branch_price' => $validated['branch_price']]);
+                $message = 'Branch product existed; branch_price updated.';
             } else {
                 $message = 'Branch product already existed.';
             }
@@ -78,8 +78,8 @@ class BranchProductController extends Controller
     public function update(Request $request, $branchId, $productId)
     {
         $validated = $request->validate([
-            // only price is relevant here
-            'price' => 'nullable|numeric',
+            // only branch_price is relevant here
+            'branch_price' => 'nullable|numeric',
         ]);
 
         $branchProduct = BranchProduct::where('branch_id', $branchId)

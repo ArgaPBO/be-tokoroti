@@ -50,6 +50,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
+    Route::get('/branches/{branchId}/products', [BranchProductController::class, 'index']);
+    Route::get('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'indexId']);
+    Route::post('/branches/{branchId}/products', [BranchProductController::class, 'store']);
+    Route::put('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'update']);
+    Route::delete('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'destroy']);
 
     // Route::post('/branches', [BranchController::class, 'store']);
 });
@@ -61,25 +66,21 @@ Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
     });
 
     // Route::get('/orders', [OrderController::class, 'index']);
-});
+// });
 
 
 //buat rute berdasarkan id branch yang login untuk branch.
 //buat rute branch yang mengambil data branch seperti nama etc. dan ambil data untuk dashboard.
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/branches/{branchId}/products', [BranchProductController::class, 'index']);
-    Route::get('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'indexId']);
-    Route::post('/branches/{branchId}/products', [BranchProductController::class, 'store']);
-    Route::put('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'update']);
-    Route::delete('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'destroy']);
-    // Route::get('/products/{id}', [ProductController::class, 'indexId']);
-    // Route::post('/products', [ProductController::class, 'store']);
-    // Route::put('/products/{id}', [ProductController::class, 'update']);
-    // Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-});
+// Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    
+//     // Route::get('/products/{id}', [ProductController::class, 'indexId']);
+//     // Route::post('/products', [ProductController::class, 'store']);
+//     // Route::put('/products/{id}', [ProductController::class, 'update']);
+//     // Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+// });
 
-Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
+// Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
     // For branch users, derive the branch id from the authenticated user's branch
     // and call the controller methods so clients only need to specify product ids.
     Route::get('branch/products', function (Request $request) {

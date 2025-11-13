@@ -15,6 +15,20 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
+        // $user = $request->user();
+
+        // if (! $user) {
+        //     return response()->json(['message' => 'Unauthorized'], 401);
+        // }
+
+        // if ($role === 'admin' && ! $user->isAdmin()) {
+        //     return $next($request);
+        // }
+
+        // if ($role === 'branch' && ! $user->isBranch()) {
+        //     return $next($request);
+        // }
+        // return response()->json(['message' => 'Forbidden - Insufficient permissions'], 403);
         $user = $request->user();
 
         if (! $user) {
@@ -22,12 +36,13 @@ class RoleMiddleware
         }
 
         if ($role === 'admin' && ! $user->isAdmin()) {
-            return $next($request);
+            return response()->json(['message' => 'Forbidden - Admins only'], 403);
         }
 
-        if ($role === 'branch' && ! $user->isBranch()) {
-            return $next($request);
+        if ($role === 'employee' && ! $user->isEmployee()) {
+            return response()->json(['message' => 'Forbidden - Employees only'], 403);
         }
-        return response()->json(['message' => 'Forbidden - Insufficient permissions'], 403);
+
+        return $next($request);
     }
 }

@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('branch_products', function (Blueprint $table) {
+        Schema::create('expense_histories', function (Blueprint $table) {
             $table->id();
+            $table->date('date');
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->foreign('branch_id')->references('id')->on('branches');
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->foreign('product_id')->references('id')->on('products');
-            $table->decimal('branch_price', 15, 2);
+            $table->unsignedBigInteger('expense_id')->nullable();
+            $table->foreign('expense_id')->references('id')->on('expenses');
+            $table->decimal('nominal', 12, 2);
+            $table->text('description')->nullable();
             $table->timestamps();
-            $table->softDeletes();
-
-            $table->unique(['branch_id', 'product_id']);
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('branch_products');
+        Schema::dropIfExists('expense_histories');
     }
 };

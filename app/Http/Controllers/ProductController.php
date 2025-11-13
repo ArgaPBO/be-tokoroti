@@ -20,19 +20,22 @@ class ProductController extends Controller
         $products = $query->paginate(10);
         return response()->json($products);
     }
+
     public function indexId($id)
     {
         $product = Product::findOrFail($id);
         return response()->json($product);
     }
 
-
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'base_price' => 'required|numeric|min:0'
         ]);
+
         $product = Product::create($validated);
+
         return response()->json([
             'message' => 'Product created successfully.',
             'data' => $product
@@ -42,8 +45,10 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'base_price' => 'required|numeric|min:0'
         ]);
+
         $product = Product::findOrFail($id);
         $product->update($validated);
 
@@ -51,5 +56,15 @@ class ProductController extends Controller
             'message' => 'Product updated successfully.',
             'data' => $product
         ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted successfully.'
+        ]);
     }
 }

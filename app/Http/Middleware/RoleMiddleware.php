@@ -22,12 +22,12 @@ class RoleMiddleware
         }
 
         if ($role === 'admin' && ! $user->isAdmin()) {
-            return response()->json(['message' => 'Forbidden - Admins only'], 403);
+            return $next($request);
         }
 
         if ($role === 'branch' && ! $user->isBranch()) {
-            return response()->json(['message' => 'Forbidden - Please use branch account'], 403);
+            return $next($request);
         }
-        return $next($request);
+        return response()->json(['message' => 'Forbidden - Insufficient permissions'], 403);
     }
 }

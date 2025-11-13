@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\BranchProductController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -20,6 +22,7 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 });
 
 // Example: only Admins
+//buat dashboard admin mengambil data jumlah branch, jumlah user, jumlah product dll.
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return response()->json(['message' => 'Welcome Admin!']);
@@ -58,6 +61,80 @@ Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
     });
 
     // Route::get('/orders', [OrderController::class, 'index']);
+});
+
+
+//buat rute berdasarkan id branch yang login untuk branch.
+//buat rute branch yang mengambil data branch seperti nama etc. dan ambil data untuk dashboard.
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/branches/{branchId}/products', [BranchProductController::class, 'index']);
+    Route::get('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'indexId']);
+    Route::post('/branches/{branchId}/products', [BranchProductController::class, 'store']);
+    Route::put('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'update']);
+    Route::delete('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'destroy']);
+    // Route::get('/products/{id}', [ProductController::class, 'indexId']);
+    // Route::post('/products', [ProductController::class, 'store']);
+    // Route::put('/products/{id}', [ProductController::class, 'update']);
+    // Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+});
+
+Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
+    // For branch users, derive the branch id from the authenticated user's branch
+    // and call the controller methods so clients only need to specify product ids.
+    Route::get('branch/products', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(BranchProductController::class)->index($request, $branchId);
+    });
+
+    Route::get('branch/products/{productId}', function (Request $request, $productId) {
+        $branchId = $request->user()->branch_id;
+        return app(BranchProductController::class)->indexId($branchId, $productId);
+    });
+
+    Route::post('branch/products', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(BranchProductController::class)->store($request, $branchId);
+    });
+
+    Route::put('branch/products/{productId}', function (Request $request, $productId) {
+        $branchId = $request->user()->branch_id;
+        return app(BranchProductController::class)->update($request, $branchId, $productId);
+    });
+
+    Route::delete('branch/products/{productId}', function (Request $request, $productId) {
+        $branchId = $request->user()->branch_id;
+        return app(BranchProductController::class)->destroy($branchId, $productId);
+    });
+
+    //product transaction history
+    Route::get('branch/histories/products', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(HistoryController::class)->productIndex($request, $branchId);
+    });
+    Route::post('branch/histories/products', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(HistoryController::class)->productStore($request, $branchId);
+    });
+    Route::delete('branch/histories/products/{id}', function (Request $request, $id) {
+        $branchId = $request->user()->branch_id;
+        return app(HistoryController::class)->productDestroy($branchId, $id);
+    });
+
+    //expense transaction history
+    Route::get('branch/histories/expenses', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(HistoryController::class)->expenseIndex($request, $branchId);
+    });
+    Route::post('branch/histories/expenses', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(HistoryController::class)->expenseStore($request, $branchId);
+    });
+    Route::delete('branch/histories/expenses/{id}', function (Request $request, $id) {
+        $branchId = $request->user()->branch_id;
+        return app(HistoryController::class)->expenseDestroy($branchId, $id);
+    });
+
 });
 
 // Accessible by any authenticated user

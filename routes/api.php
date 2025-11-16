@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchProductController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
@@ -49,6 +50,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    //expense crud
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+    Route::get('/expenses/{id}', [ExpenseController::class, 'indexId']);
+    Route::post('/expenses', [ExpenseController::class, 'store']);
+    Route::put('/expenses/{id}', [ExpenseController::class, 'update']);
+    Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy']);
 
     Route::get('/branches/{branchId}/products', [BranchProductController::class, 'index']);
     Route::get('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'indexId']);

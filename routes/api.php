@@ -10,6 +10,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use function Symfony\Component\Clock\now;
+
 Route::post('/login', [ApiAuthController::class, 'login'])
     ->middleware('guest')
     ->name('login');
@@ -24,9 +26,26 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 // Example: only Admins
 //buat dashboard admin mengambil data jumlah branch, jumlah user, jumlah product dll.
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/{id}', [ProductController::class, 'indexId']);
+});
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
-        return response()->json(['message' => 'Welcome Admin!']);
+        
+        return response()->json([
+        'products_count' => \App\Models\Product::count(),
+
+        'branches_count' => \App\Models\Branch::count(),
+
+        'branch_product_history_quantity_sum' => \App\Models\ProductHistory::whereYear('date', now()->format('Y'))
+            ->whereMonth('date', now()->format('m'))
+            ->sum('quantity'),
+
+        'branch_expense_history_nominal_sum' => \App\Models\ExpenseHistory::whereYear('date', now()->format('Y'))
+            ->whereMonth('date', now()->format('m'))
+            ->sum('nominal')
+    ]);
     });
     //branch crud
     Route::get('/branches', [BranchController::class, 'index']);
@@ -45,8 +64,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
     //product crud
-    Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/products/{id}', [ProductController::class, 'indexId']);
+    // Route::get('/products', [ProductController::class, 'index']);
+    // Route::get('/products/{id}', [ProductController::class, 'indexId']);
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
@@ -68,8 +87,21 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 // Example: only Employees
 Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
-    Route::get('/branch/dashboard', function () {
-        return response()->json(['message' => 'Welcome Employee!']);
+    Route::get('/branch/dashboard', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return response()->json([
+        'branch_product_count' => \App\Models\BranchProduct::where('branch_id', $branchId)->count(),
+
+        'branch_product_history_count' => \App\Models\ProductHistory::where('branch_id', $branchId)
+            ->whereYear('date', now()->format('Y'))
+            ->whereMonth('date', now()->format('m'))
+            ->sum('quantity'),
+
+        'branch_expense_history_count' => \App\Models\ExpenseHistory::where('branch_id', $branchId)
+            ->whereYear('date', now()->format('Y'))
+            ->whereMonth('date', now()->format('m'))
+            ->sum('nominal')
+    ]);
     });
 
     // Route::get('/orders', [OrderController::class, 'index']);

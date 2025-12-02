@@ -19,4 +19,10 @@ class BranchProduct extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    public function productHistories()
+{
+    return $this->hasMany(ProductHistory::class, 'product_id', 'product_id')
+                ->where('branch_id', $this->branch_id);
+}
+
 }

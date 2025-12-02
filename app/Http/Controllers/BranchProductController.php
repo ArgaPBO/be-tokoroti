@@ -4,24 +4,65 @@ namespace App\Http\Controllers;
 
 use App\Models\BranchProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BranchProductController extends Controller
 {
     //
     public function index(Request $request, $branchId)
-    {
-        $query = BranchProduct::with('product')->where('branch_id', $branchId);
+{
+    $start = $request->input('start_date', now()->startOfMonth()->toDateString());
+    $end   = $request->input('end_date', now()->endOfMonth()->toDateString());
+    $search = $request->input('search');
 
-        // optional search by product name (name lives on the related Product)
-        if ($search = $request->input('search')) {
-            $query->whereHas('product', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
-        }
+    // SUBQUERY: summarize histories
+    $historyAgg = DB::table('product_histories')
+        ->select(
+            'product_id',
+            DB::raw('SUM(quantity) as total_quantity'),
+            DB::raw('SUM( (product_price 
+                        - CASE 
+                            WHEN discount_percent IS NOT NULL THEN product_price * (discount_percent / 100)
+                            WHEN discount_price IS NOT NULL THEN discount_price
+                            ELSE 0 
+                        END
+                      ) * quantity ) as total_revenue'),
 
-        $products = $query->paginate(10);
-        return response()->json($products);
+            DB::raw("AVG(CASE WHEN transaction_type='retail' THEN 1 ELSE 0 END)*100 as retail_percent"),
+            DB::raw("AVG(CASE WHEN transaction_type='pesanan' THEN 1 ELSE 0 END)*100 as pesanan_percent"),
+            DB::raw("AVG(CASE WHEN shift='pagi' THEN 1 ELSE 0 END)*100 as pagi_percent"),
+            DB::raw("AVG(CASE WHEN shift='siang' THEN 1 ELSE 0 END)*100 as siang_percent")
+        )
+        ->where('branch_id', $branchId)
+        ->whereBetween('date', [$start, $end])
+        ->groupBy('product_id');
+
+    // BASE QUERY
+    $query = BranchProduct::with('product')
+        ->leftJoinSub($historyAgg, 'agg', function($join){
+            $join->on('branch_products.product_id', '=', 'agg.product_id');
+        })
+        ->where('branch_products.branch_id', $branchId)
+        ->select(
+            'branch_products.*',
+            DB::raw('COALESCE(agg.total_quantity,0) as total_quantity'),
+            DB::raw('COALESCE(agg.total_revenue,0) as total_revenue'),
+            DB::raw('COALESCE(agg.retail_percent,0) as retail_percent'),
+            DB::raw('COALESCE(agg.pesanan_percent,0) as pesanan_percent'),
+            DB::raw('COALESCE(agg.pagi_percent,0) as pagi_percent'),
+            DB::raw('COALESCE(agg.siang_percent,0) as siang_percent')
+        )
+        ->orderByDesc('total_quantity');
+
+    if ($search) {
+        $query->whereHas('product', fn($q)=> $q->where('name', 'like', "%{$search}%"));
     }
+
+    return $query->paginate(10);
+}
+
+
+
 
     // get a single branch-product by branch_id and product_id
     public function indexId($branchId, $productId)

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Expense;
+use App\Models\ExpenseHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ExpenseController extends Controller
 {
@@ -18,6 +20,36 @@ class ExpenseController extends Controller
         $expenses = $query->paginate(10);
         return response()->json($expenses);
     }
+
+    public function indexBranch(Request $request, $branchId)
+{
+    $start = $request->input('start_date', now()->startOfMonth()->toDateString());
+    $end   = $request->input('end_date', now()->endOfMonth()->toDateString());
+    $search = $request->input('search');
+
+    $query = ExpenseHistory::with('expense')
+        ->select(
+            'expense_id',
+            DB::raw('SUM(nominal) as total_nominal'),
+            DB::raw("AVG(CASE WHEN shift = 'pagi' THEN 1 ELSE 0 END) * 100 as pagi_percent"),
+            DB::raw("AVG(CASE WHEN shift = 'siang' THEN 1 ELSE 0 END) * 100 as siang_percent")
+        )
+        ->where('branch_id', $branchId)
+        ->whereBetween('date', [$start, $end])
+        ->groupBy('expense_id')
+        ->orderByDesc('total_nominal');
+
+    if ($search) {
+        $query->whereHas('expense', fn($q)=> 
+            $q->where('name', 'like', "%{$search}%")
+        );
+    }
+
+    return $query->paginate(10);
+}
+
+
+
 
     public function indexId($id)
     {

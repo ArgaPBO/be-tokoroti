@@ -18,7 +18,7 @@ class HistoryController extends Controller
     {
         $query = ProductHistory::with('product')->where('branch_id', $branchId);
 
-        if ($productName = $request->input('product_name')) {
+        if ($productName = $request->input('search')) {
             $query->whereHas('product', function ($q) use ($productName) {
                 $q->where('name', 'like', "%{$productName}%");
             });
@@ -179,7 +179,7 @@ class HistoryController extends Controller
     {
         $query = ExpenseHistory::with('expense')->where('branch_id', $branchId);
 
-        if ($expenseName = $request->input('expense_name')) {
+        if ($expenseName = $request->input('search')) {
             $query->whereHas('expense', function ($q) use ($expenseName) {
                 $q->where('name', 'like', "%{$expenseName}%");
             });

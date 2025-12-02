@@ -34,6 +34,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/expenses/{id}', [ExpenseController::class, 'indexId']);
 });
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/admin', function (Request $request) {
+        $user = $request->user();
+        return response()->json([
+            'user' => $user
+        ]);
+    });
     Route::get('/admin/dashboard', function () {
         
         return response()->json([
@@ -56,6 +62,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/branches/{id}', [BranchController::class, 'indexId']);
     Route::post('/branches', [BranchController::class, 'store']);
     Route::put('/branches/{id}', [BranchController::class, 'update']);
+    Route::delete('/branches/{id}', [BranchController::class, 'destroy']);
 
     //users crud
     Route::get('/users/branch/{branch_id}', [UserController::class, 'indexByBranch']);
@@ -86,8 +93,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'update']);
     Route::delete('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'destroy']);
 
+    Route::get('/branches/{branchId}/expenses', [ExpenseController::class, 'indexBranch']);
 
     // Route::post('/branches', [BranchController::class, 'store']);
+    Route::get('/branches/{branchId}/labarugi', [LabaRugiController::class, 'index']);
 });
 
 // Example: only Employees
@@ -119,7 +128,7 @@ Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
     ]);
     });
 
-    Route::get('branch/labarugi', function (Request $request) {
+    Route::get('/branch/labarugi', function (Request $request) {
         $branchId = $request->user()->branch_id;
         return app(LabaRugiController::class)->index($request, $branchId);
     });

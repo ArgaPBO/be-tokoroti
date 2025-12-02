@@ -65,4 +65,14 @@ class BranchController extends Controller
         ], 200);
     }
 
+    public function destroy($id)
+    {
+        $branch = Branch::findOrFail($id);
+        $branch->delete();
+
+        return response()->json([
+            'message' => 'Branch deleted successfully. All related data (products, users, histories) has been cascaded.'
+        ], 200);
+    }
+
 }

@@ -155,6 +155,11 @@ Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
         $branchId = $request->user()->branch_id;
         return app(BranchProductController::class)->index($request, $branchId);
     });
+    
+    Route::get('branch/expenses', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(ExpenseController::class)->indexBranch($request, $branchId);
+    });
 
     Route::get('branch/products/{productId}', function (Request $request, $productId) {
         $branchId = $request->user()->branch_id;

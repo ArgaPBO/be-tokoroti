@@ -75,7 +75,7 @@ class HistoryController extends Controller
             'discount_percent' => 'nullable|numeric',
             'discount_price' => 'nullable|numeric',
             'transaction_type' => 'required|string|in:pesanan,retail',
-            'shift' => 'required|string|in:pagi,siang',
+            'shift' => 'string|in:pagi,siang',
         ];
 
         foreach ($items as $index => $item) {
@@ -227,7 +227,7 @@ class HistoryController extends Controller
             'expense_name' => 'required|string',
             'nominal' => 'required|numeric',
             'description' => 'nullable|string',
-            'shift' => 'required|string|in:pagi,siang',
+            'shift' => 'string|in:pagi,siang',
         ];
 
         foreach ($items as $index => $item) {

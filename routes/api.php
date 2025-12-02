@@ -5,6 +5,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchProductController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -29,6 +30,8 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'indexId']);
+    Route::get('/expenses', [ExpenseController::class, 'index']);
+    Route::get('/expenses/{id}', [ExpenseController::class, 'indexId']);
 });
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
@@ -49,16 +52,17 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     });
     //branch crud
     Route::get('/branches', [BranchController::class, 'index']);
+    Route::get('/branchesall', [BranchController::class, 'indexAll']);
     Route::get('/branches/{id}', [BranchController::class, 'indexId']);
     Route::post('/branches', [BranchController::class, 'store']);
     Route::put('/branches/{id}', [BranchController::class, 'update']);
 
     //users crud
-    Route::get('/users', [UserController::class, 'index']);
-    Route::get('/users/{id}', [UserController::class, 'indexId']);
-    Route::get('/users/admin', [UserController::class, 'indexAdmins']);
     Route::get('/users/branch/{branch_id}', [UserController::class, 'indexByBranch']);
     Route::get('/users/branch', [UserController::class, 'indexBranch']);
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
+    // Route::get('/users/admin', [UserController::class, 'indexAdmins']);
     Route::post('/users', [UserController::class, 'store']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
@@ -70,8 +74,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     //expense crud
-    Route::get('/expenses', [ExpenseController::class, 'index']);
-    Route::get('/expenses/{id}', [ExpenseController::class, 'indexId']);
+    // Route::get('/expenses', [ExpenseController::class, 'index']);
+    // Route::get('/expenses/{id}', [ExpenseController::class, 'indexId']);
     Route::post('/expenses', [ExpenseController::class, 'store']);
     Route::put('/expenses/{id}', [ExpenseController::class, 'update']);
     Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy']);
@@ -82,11 +86,22 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'update']);
     Route::delete('/branches/{branchId}/products/{productId}', [BranchProductController::class, 'destroy']);
 
+
     // Route::post('/branches', [BranchController::class, 'store']);
 });
 
 // Example: only Employees
 Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
+    Route::get('/branch', function (Request $request) {
+        $user = $request->user();
+        $branch = \App\Models\Branch::find($user->branch_id);
+
+        return response()->json([
+            'user' => $user,
+            'branch' => $branch
+        ]);
+    });
+
     Route::get('/branch/dashboard', function (Request $request) {
         $branchId = $request->user()->branch_id;
         return response()->json([
@@ -102,6 +117,11 @@ Route::middleware(['auth:sanctum', 'role:branch'])->group(function () {
             ->whereMonth('date', now()->format('m'))
             ->sum('nominal')
     ]);
+    });
+
+    Route::get('branch/labarugi', function (Request $request) {
+        $branchId = $request->user()->branch_id;
+        return app(LabaRugiController::class)->index($request, $branchId);
     });
 
     // Route::get('/orders', [OrderController::class, 'index']);

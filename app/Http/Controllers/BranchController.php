@@ -20,6 +20,18 @@ class BranchController extends Controller
         $branches = $query->paginate(10);
         return response()->json($branches);
     }
+    public function indexAll(Request $request)
+    {
+        $query = Branch::query();
+
+        // optional search by branch name
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $branches = $query->get();
+        return response()->json($branches);
+    }
     public function indexId($id)
     {
         $branch = Branch::findOrFail($id);

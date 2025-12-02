@@ -20,6 +20,7 @@ class ProductHistory extends Model
         'discount_percent',
         'discount_price',
         'transaction_type',
+        'shift',
     ];
 
     /**

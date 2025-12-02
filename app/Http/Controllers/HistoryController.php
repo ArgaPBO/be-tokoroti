@@ -18,12 +18,18 @@ class HistoryController extends Controller
     {
         $query = ProductHistory::with('product')->where('branch_id', $branchId);
 
-        if ($productId = $request->input('product_id')) {
-            $query->where('product_id', $productId);
+        if ($productName = $request->input('product_name')) {
+            $query->whereHas('product', function ($q) use ($productName) {
+                $q->where('name', 'like', "%{$productName}%");
+            });
         }
 
         if ($type = $request->input('transaction_type')) {
             $query->where('transaction_type', $type);
+        }
+
+        if ($shift = $request->input('shift')) {
+            $query->where('shift', $shift);
         }
 
         if ($from = $request->input('date_from')) {
@@ -69,6 +75,7 @@ class HistoryController extends Controller
             'discount_percent' => 'nullable|numeric',
             'discount_price' => 'nullable|numeric',
             'transaction_type' => 'required|string|in:pesanan,retail',
+            'shift' => 'required|string|in:pagi,siang',
         ];
 
         foreach ($items as $index => $item) {
@@ -130,6 +137,7 @@ class HistoryController extends Controller
                 'discount_percent' => $discount_percent,
                 'discount_price' => $discount_price,
                 'transaction_type' => $item['transaction_type'],
+                'shift' => $item['shift'],
             ];
 
             try {
@@ -171,8 +179,14 @@ class HistoryController extends Controller
     {
         $query = ExpenseHistory::with('expense')->where('branch_id', $branchId);
 
-        if ($expenseId = $request->input('expense_id')) {
-            $query->where('expense_id', $expenseId);
+        if ($expenseName = $request->input('expense_name')) {
+            $query->whereHas('expense', function ($q) use ($expenseName) {
+                $q->where('name', 'like', "%{$expenseName}%");
+            });
+        }
+
+        if ($shift = $request->input('shift')) {
+            $query->where('shift', $shift);
         }
 
         if ($from = $request->input('date_from')) {
@@ -213,6 +227,7 @@ class HistoryController extends Controller
             'expense_name' => 'required|string',
             'nominal' => 'required|numeric',
             'description' => 'nullable|string',
+            'shift' => 'required|string|in:pagi,siang',
         ];
 
         foreach ($items as $index => $item) {
@@ -243,6 +258,7 @@ class HistoryController extends Controller
                 'expense_id' => $expense->id,
                 'nominal' => $item['nominal'],
                 'description' => $item['description'] ?? null,
+                'shift' => $item['shift'],
             ];
 
             try {

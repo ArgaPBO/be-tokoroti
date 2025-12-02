@@ -17,6 +17,7 @@ class ExpenseHistory extends Model
         'expense_id',
         'nominal',
         'description',
+        'shift',
     ];
 
     /**

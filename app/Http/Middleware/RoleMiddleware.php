@@ -39,8 +39,8 @@ class RoleMiddleware
             return response()->json(['message' => 'Forbidden - Admins only'], 403);
         }
 
-        if ($role === 'employee' && ! $user->isEmployee()) {
-            return response()->json(['message' => 'Forbidden - Employees only'], 403);
+        if ($role === 'branch' && ! $user->isBranch()) {
+            return response()->json(['message' => 'Forbidden - Branch account only'], 403);
         }
 
         return $next($request);

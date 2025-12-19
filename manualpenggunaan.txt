@@ -1,0 +1,6 @@
+setelah php artisan migrate --seed atau php artisan db:seed
+username admin: admin
+password: admin123
+
+buat cabang pada branch, lalu buat akun baru untuk cabang itu pada users (password min 8 karakter) untuk menggunakan cabang
+buat produk pada product di admin sebelum membuat prouk cabang pada cabang

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 
+
+//just make it if page = 0 it returns all instead of a seperate function
 class BranchController extends Controller
 {
     //

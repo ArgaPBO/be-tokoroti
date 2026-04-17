@@ -7,6 +7,8 @@ use App\Models\ExpenseHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+//MOVE expense history to EXPENSE HITORY controller uwu (the index by bracn one)
+
 class ExpenseController extends Controller
 {
     public function index(Request $request)

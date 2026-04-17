@@ -154,6 +154,8 @@ use App\Models\ProductHistory;
 use App\Models\ExpenseHistory;
 use App\Models\BranchProduct;
 
+//damn
+
 class LabaRugiController extends Controller
 {
     public function index(Request $request, $branchId)

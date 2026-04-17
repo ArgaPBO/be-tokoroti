@@ -11,6 +11,8 @@ use App\Models\ExpenseHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+//pecahkan controller dan validasi quantity negative
+
 class HistoryController extends Controller
 {
     // Product transaction history for branch-scoped endpoints
@@ -71,9 +73,9 @@ class HistoryController extends Controller
         $itemRules = [
             'date' => 'required|date',
             'product_name' => 'required|string',
-            'quantity' => 'required|integer',
-            'discount_percent' => 'nullable|numeric',
-            'discount_price' => 'nullable|numeric',
+            'quantity' => 'required|integer|min:0',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
+            'discount_price' => 'nullable|numeric|min:0',
             'transaction_type' => 'required|string|in:pesanan,retail',
             'shift' => 'string|in:pagi,siang',
         ];
@@ -225,7 +227,7 @@ class HistoryController extends Controller
         $itemRules = [
             'date' => 'required|date',
             'expense_name' => 'required|string',
-            'nominal' => 'required|numeric',
+            'nominal' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'shift' => 'string|in:pagi,siang',
         ];

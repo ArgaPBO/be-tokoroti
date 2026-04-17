@@ -6,6 +6,8 @@ use App\Models\BranchProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+//omg this controller so assssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
 class BranchProductController extends Controller
 {
     //
@@ -81,7 +83,7 @@ class BranchProductController extends Controller
         $validated = $request->validate([
             'product_id' => 'required|integer|exists:products,id',
             // BranchProduct only has branch_price (no stock)
-            'branch_price' => 'nullable|numeric',
+            'branch_price' => 'nullable|numeric|min:0',
         ]);
 
         $attributes = [
@@ -120,7 +122,7 @@ class BranchProductController extends Controller
     {
         $validated = $request->validate([
             // only branch_price is relevant here
-            'branch_price' => 'nullable|numeric',
+            'branch_price' => 'nullable|numeric|min:0',
         ]);
 
         $branchProduct = BranchProduct::where('branch_id', $branchId)
